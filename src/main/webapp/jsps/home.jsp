@@ -9,8 +9,8 @@
 </head>
 </head>
 <body>
-<h1 align="center">Welcome to Ritu Technologies - GitHub WebHook Demo </h1>
-<h1 align="center"> Welcome to Ritu Software Solutions.......We are devops engineer  ,and we are happy to serve you,...Teaching Real Time scnerios and use cases... Some fake guys are giving the fake reviews dont believe those guys..I am requesting everyone. Please give your reviews in FB and Google.</h1>
+<h1 align="center">Welcome to Prateek Technologies - GitHub WebHook Demo </h1>
+<h1 align="center"> Welcome to Ritu Software Solutions.......We both are devops engineer  ,and we are happy to serve you,...Teaching Real Time scnerios and use cases... Some fake guys are giving the fake reviews dont believe those guys..I am requesting everyone. Please give your reviews in FB and Google.</h1>
 	<h1 align="center">   </h1>
 <hr>
 <div style="text-align: center;">
