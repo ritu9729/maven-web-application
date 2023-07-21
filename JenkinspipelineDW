@@ -17,7 +17,7 @@ stages{
 
     stage('CheckOutCode'){
 	 steps{
-	   git branch: 'development', credentialsId: '347c3760-8e63-4289-9fe9-0a03f8442491', url: 'https://github.com/MithunTechnologiesDevOps/maven-web-application.git'
+	     git branch: "${params.BranchName}", credentialsId: 'beb345d7-01ac-4844-bd78-aacdb9b11e27', url: 'https://github.com/ritu9729/maven-web-application.git'
 	 }
 	}
 	
@@ -26,7 +26,7 @@ stages{
 	  sh "mvn clean package"
 	  }
 	}
-  /*
+  
   stage('ExecuteSonarQubeReport'){
 	steps{
 	sh "mvn sonar:sonar"
@@ -41,33 +41,50 @@ stages{
 	
 	stage('DeployAppIntoTomcatServer'){
 	steps{
-	sshagent(['a2b944b0-d466-4676-8997-3658e2ab4fca']) {
-	 sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.213.0.19:/opt/apache-tomcat-9.0.41/webapps/"
+	sshagent(['dd085870-ab36-4a86-9f5b-a915e179d45d']) {
+   sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.40.86:/opt/apache-tomcat-9.0.73/webapps/"
 	}
 	}
 	}
-	*/
+	
 }
 
 	post{
 
 	  success{
-	    mail body: '''Build Over!.. Success
-
-Regards,
-Mithun Technologies,
-9980923226''', subject: 'Build Over...Successfull', to: 'devopstrainingblr@gmail.com'
+              sendSlackNotifications(currentBuild.result)
 	  }
 	  
 	  failure{
 	     
-	  	    mail body: '''Build Over!.. Failed
-
-	  Regards,
-	  Mithun Technologies,
-	  9980923226''', subject: 'Build Over...Failed', to: 'devopstrainingblr@gmail.com'
+	  	    sendSlackNotifications(currentBuild.result)
 	  }
 	  
 	  
 	}
+}
+def sendSlackNotifications(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESS'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESS') {
+    colorName = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    colorName = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary, channel: '#citibank')
 }
