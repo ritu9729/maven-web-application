@@ -1,65 +1,80 @@
 pipeline{
-                                                 
+
 agent any
+
+parameters {
+  choice choices: ['master', 'development', 'stage', 'uat'], description: 'Select the Branch Name', name: 'BranchName'
+  string defaultValue: 'Mithun Software Solutions', name: 'PersonName'
+}
+
 
 tools{
 maven 'maven3.9.3'
 }
 
-options{
-timestamps()
+options {
+  buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
+  timestamps()
 }
+
+
+triggers {
+  pollSCM('* * * * * ')
+}
+
 
 stages{
+  stage('CheckoutCode'){
+  steps{
+      sendSlackNotifications('STARTED')
+  git branch: "${params.BranchName}", credentialsId:'beb345d7-01ac-4844-bd78-aacdb9b11e27', url: 'https://github.com/ritu9729/maven-web-application.git'
+}
+  }
+  }
 
-    stage('CheckOutCode'){
-	 steps{
-	     git branch: "development", credentialsId: 'beb345d7-01ac-4844-bd78-aacdb9b11e27', url: 'https://github.com/ritu9729/maven-web-application.git'
-	 }
-	}
-	
-	stage('Build'){
-	  steps{
-	  sh "mvn clean package"
-	  }
-	}
-  
-  stage('ExecuteSonarQubeReport'){
-	steps{
-	sh "mvn clean sonar:sonar"
-	}
-	}
-	
-	stage('UploadArtifactsIntoNexus'){
-	steps{
-	sh "mvn deploy"
-	}
-	}
-	
-	stage('DeployAppIntoTomcatServer'){
-	steps{
-	sshagent(['dd085870-ab36-4a86-9f5b-a915e179d45d']) {
-   sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.40.86:/opt/apache-tomcat-9.0.73/webapps/"
-	}
-	}
-	}
-	
+stage('Build'){
+steps{
+sh "mvn clean package"
+}
+}
+/*
+//Execute SonarQube Report
+stage('ExecuteSonarQubeReport'){
+steps{
+sh "mvn clean sonar:sonar"
+}
 }
 
-	post{
-
-	  success{
-              sendSlackNotifications(currentBuild.result)
-	  }
-	  
-	  failure{
-	     
-	  	    sendSlackNotifications(currentBuild.result)
-	  }
-	  
-	  
-	}
+//UploadArtifactsIntoNexus
+stage('ArtifactsIntoNexus'){
+steps{
+sh "mvn clean deploy"
 }
+}
+
+//DeployApplication into TOmcat Server
+stage('DeploApp'){
+steps{
+sshagent(['2d14bb14-8389-436b-909f-d490a648e7b1']) {
+    sh "scp -o stricthostkeychecking=no /var/lib/jenkins/workspace/pipeline-scriptedway/target/maven-web-application.war ec2-user@172.31.35.100:/opt/apache-tomcat-9.0.76/webapps "
+}
+}
+}
+*/
+
+}//stages closing
+post {
+  success {
+    sendSlackNotifications(currentBuild.result)
+  }
+  failure {
+    sendSlackNotifications(currentBuild.result)
+  }
+}
+
+}//pipeline closing
+
+//Function for slack notifications
 def sendSlackNotifications(String buildStatus = 'STARTED') {
   // build status of null means successful
   buildStatus =  buildStatus ?: 'SUCCESS'
