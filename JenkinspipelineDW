@@ -28,16 +28,16 @@ stages{
   steps{
       sendSlackNotifications('STARTED')
   git branch: "${params.BranchName}", credentialsId:'beb345d7-01ac-4844-bd78-aacdb9b11e27', url: 'https://github.com/ritu9729/maven-web-application.git'
-}
+      }
   }
-  }
+  
 
 stage('Build'){
 steps{
 sh "mvn clean package"
 }
 }
-/*
+
 //Execute SonarQube Report
 stage('ExecuteSonarQubeReport'){
 steps{
@@ -60,8 +60,6 @@ sshagent(['2d14bb14-8389-436b-909f-d490a648e7b1']) {
 }
 }
 }
-*/
-
 }//stages closing
 post {
   success {
@@ -71,7 +69,6 @@ post {
     sendSlackNotifications(currentBuild.result)
   }
 }
-
 }//pipeline closing
 
 //Function for slack notifications
