@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   springboot:
-    image: dockerhandson/maven-web-application:VERSION
+    image: ritz9457/maven-web-application:VERSION
     restart: always
     ports:
     - 9090:8080
@@ -9,3 +9,5 @@ services:
     - mavenappbridge
 networks:
   mavenappbridge:
+volumes:
+  mongoebsvol:
